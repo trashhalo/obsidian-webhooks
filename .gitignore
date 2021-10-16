@@ -66,3 +66,4 @@ node_modules/
 .env
 .yarn
 .yarcrc.yml
+plugin/main.js
