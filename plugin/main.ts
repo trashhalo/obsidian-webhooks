@@ -23,6 +23,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
   triggerOnLoad: true,
 };
 
+// No one panic! https://stackoverflow.com/questions/37482366/is-it-safe-to-expose-firebase-apikey-to-the-public
 const firebaseConfig = {
   apiKey: "AIzaSyD428MEhEl1Zj8TWw4MXZRsKlCXI_TCgvg",
   authDomain: "obsidian-buffer.firebaseapp.com",
