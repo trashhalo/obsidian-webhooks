@@ -85,7 +85,7 @@ export default class MyPlugin extends Plugin {
       throw err;
     } finally {
       setTimeout(() => {
-        this.valUnsubscribe = onValue(data.ref, (data) => {
+        this.valUnsubscribe = onValue(data.ref, () => {
           this.onBufferChange(data);
         });
       }, 5000);
