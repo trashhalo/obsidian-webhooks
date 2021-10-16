@@ -1,0 +1,14 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+      	".read": "$uid === auth.uid && auth.provider != 'anonymous'"
+      }
+    },
+    "buffer": {
+      "$uid": {
+        ".read": "$uid === auth.uid && auth.provider != 'anonymous'"
+      }
+    },
+  }
+}
