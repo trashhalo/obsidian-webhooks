@@ -4,7 +4,7 @@ import "firebase/database";
 import "firebase/functions";
 
 const app = firebase.initializeApp({
-  apiKey: "AIzaSyD428MEhEl1Zj8TWw4MXZRsKlCXI_TCgvg",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "obsidian-buffer.firebaseapp.com",
   databaseURL: "https://obsidian-buffer-default-rtdb.firebaseio.com",
   projectId: "obsidian-buffer",

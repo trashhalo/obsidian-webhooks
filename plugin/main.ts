@@ -24,7 +24,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 };
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD428MEhEl1Zj8TWw4MXZRsKlCXI_TCgvg",
+  apiKey: process.env.FIREBASE_API_KEY,
   authDomain: "obsidian-buffer.firebaseapp.com",
   databaseURL: "https://obsidian-buffer-default-rtdb.firebaseio.com",
   projectId: "obsidian-buffer",
