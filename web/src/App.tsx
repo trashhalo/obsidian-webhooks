@@ -1,51 +1,63 @@
-import { useEffect, useState } from "react";
-import firebase from "firebase/app";
-import { useList, useObjectVal } from "react-firebase-hooks/database";
+import { onCleanup, onMount, Show, useContext } from "solid-js";
+import { getDatabase, onValue, ref } from "firebase/database";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { AppContext, createAppStore } from "./store";
+import app from "./firebase";
+import {
+  Auth,
+  getAuth,
+  getRedirectResult,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  signOut,
+  User,
+} from "@firebase/auth";
 
 const Login = () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
+  const [store] = useContext(AppContext);
+  const provider = new GoogleAuthProvider();
   const loginWithGoogle = async () => {
-    firebase.auth().signInWithRedirect(provider);
+    signInWithRedirect(getAuth(store.app), provider);
   };
   return (
     <section className="section">
       <div className="container">
-        <button className="button is-primary" onClick={loginWithGoogle}>
-          {" "}
-          Sign in with Google{" "}
+        <button
+          className="button is-primary"
+          onClick={loginWithGoogle}
+          disabled={store.loading}
+        >
+          Sign in with Google
         </button>
       </div>
     </section>
   );
 };
+const functions = getFunctions(app);
+const generateObsidianToken = httpsCallable(functions, "generateObsidianToken");
 
-const generateObsidianToken = firebase
-  .functions()
-  .httpsCallable("generateObsidianToken");
+const Authed = () => {
+  const [store, { setCurrentUser, setObsidianToken, setLoading }] =
+    useContext(AppContext);
 
-const Authed = ({ user, onLogout }: { user: any; onLogout: () => void }) => {
-  const [obsidianToken, setObsidianToken] = useState<any>(null);
-  const [obsidianTokenLoading, setObsidianTokenLoading] = useState(false);
-
-  const [value, keyLoading, keyError] = useObjectVal<string>(
-    firebase.database().ref(`users/${user.uid}/key`)
-  );
-  const [snapshots, listLoading, listError] = useList(
-    firebase.database().ref(`buffer/${user.uid}`)
-  );
   const handleGenerateClick = async () => {
-    setObsidianTokenLoading(true);
+    setLoading(true);
     try {
       const { data } = await generateObsidianToken();
-      setObsidianToken(data);
+      typeof data === "string" && setObsidianToken(data);
     } finally {
-      setObsidianTokenLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleLogoutClick = async () => {
-    await firebase.auth().signOut();
-    onLogout();
+  const handleLogoutClick = async (auth: Auth) => {
+    try {
+      setLoading(true);
+      await signOut(auth);
+      setCurrentUser(undefined);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,25 +66,24 @@ const Authed = ({ user, onLogout }: { user: any; onLogout: () => void }) => {
         <div className="container">
           <h1 className="title"> Login Token </h1>
           <div className="buttons">
-            {!obsidianToken && (
+            {!store.obsidianToken && (
               <button
                 className="button is-primary"
                 onClick={handleGenerateClick}
-                disabled={obsidianTokenLoading}
+                disabled={store.loading}
               >
                 Generate Obsidian Signin Token
               </button>
             )}
             <button
               className="button is-light"
-              onClick={handleLogoutClick}
-              disabled={obsidianTokenLoading}
+              onClick={() => handleLogoutClick(getAuth(store.app))}
+              disabled={store.loading}
             >
               Logout
             </button>
           </div>
-          {obsidianTokenLoading && <> generating ... </>}
-          {obsidianToken && (
+          {store.obsidianToken && (
             <>
               <p className="subtitle">
                 Copy token and paste into plugin settings
@@ -81,7 +92,7 @@ const Authed = ({ user, onLogout }: { user: any; onLogout: () => void }) => {
                 className="input"
                 type="text"
                 readOnly={true}
-                value={obsidianToken}
+                value={store.obsidianToken}
               />
             </>
           )}
@@ -89,9 +100,7 @@ const Authed = ({ user, onLogout }: { user: any; onLogout: () => void }) => {
       </section>
       <section className="section">
         <div className="container">
-          {keyError && <strong>Error: {keyError}</strong>}
-          {keyLoading && <span>Key: Loading...</span>}
-          {!keyLoading && value && (
+          {store.key && (
             <>
               <h1 className="title"> Webhook URL </h1>
               <div className="content">
@@ -112,7 +121,7 @@ const Authed = ({ user, onLogout }: { user: any; onLogout: () => void }) => {
                 className="input"
                 type="text"
                 readOnly={true}
-                value={`https://us-central1-obsidian-buffer.cloudfunctions.net/webhook/${value}?path=test/spotify.md`}
+                value={`https://us-central1-obsidian-buffer.cloudfunctions.net/webhook/${store.key}?path=test/spotify.md`}
               />
             </>
           )}
@@ -120,12 +129,10 @@ const Authed = ({ user, onLogout }: { user: any; onLogout: () => void }) => {
       </section>
       <section className="section">
         <div className="container">
-          {listError && <strong>Error: {listError}</strong>}
-          {listLoading && <span>List: Loading...</span>}
-          {!listLoading && snapshots && (
+          {store.buffer && (
             <>
-              {snapshots.map((v) => (
-                <div key={v.key}>{JSON.stringify(v.val())}</div>
+              {store.buffer.map((v) => (
+                <div>{JSON.stringify(v.val)}</div>
               ))}
             </>
           )}
@@ -135,15 +142,37 @@ const Authed = ({ user, onLogout }: { user: any; onLogout: () => void }) => {
   );
 };
 
-const App = () => {
-  const [currentUser, setCurrentUser] = useState(firebase.auth().currentUser);
+function App() {
+  const store = createAppStore();
+  const [state, { setApp, setLoading, setKey, setCurrentUser }] = store;
 
-  useEffect(() => {
-    const handleRedirect = async () => {
-      await firebase.auth().getRedirectResult();
-      setCurrentUser(firebase.auth().currentUser);
-    };
-    handleRedirect();
+  setApp(app);
+  const auth = getAuth(state.app);
+
+  let keyUnsubscribe = () => {};
+  const authUnsubscribe = auth.onAuthStateChanged((user: User | null) => {
+    keyUnsubscribe();
+    setCurrentUser(user || undefined);
+    if (user) {
+      setLoading(true);
+      const db = getDatabase(state.app);
+      keyUnsubscribe = onValue(ref(db, `users/${user.uid}/key`), (value) => {
+        const val = value.val();
+        setKey(val);
+        if (val) {
+          setLoading(false);
+        }
+      });
+    } else {
+      setLoading(false);
+    }
+  });
+
+  onMount(() => getRedirectResult(auth));
+
+  onCleanup(() => {
+    authUnsubscribe();
+    keyUnsubscribe();
   });
 
   return (
@@ -165,13 +194,18 @@ const App = () => {
           </p>
         </div>
       </section>
-      {currentUser ? (
-        <Authed user={currentUser} onLogout={() => setCurrentUser(null)} />
-      ) : (
-        <Login />
-      )}
+      <Show when={state.loading}>
+        <section className="section">
+          <div className="container">
+            <progress class="progress is-primary" max="100"></progress>
+          </div>
+        </section>
+      </Show>
+      <AppContext.Provider value={store}>
+        {state.currentUser ? <Authed /> : <Login />}
+      </AppContext.Provider>
     </>
   );
-};
+}
 
 export default App;
