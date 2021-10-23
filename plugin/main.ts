@@ -35,7 +35,7 @@ const firebaseConfig = {
   measurementId: "G-885V9M0N0C",
 };
 
-export default class MyPlugin extends Plugin {
+export default class ObsidianWebhooksPlugin extends Plugin {
   settings: MyPluginSettings;
   firebase: FirebaseApp;
   loggedIn: boolean;
@@ -135,11 +135,11 @@ export default class MyPlugin extends Plugin {
 }
 
 class WebhookSettingTab extends PluginSettingTab {
-  plugin: MyPlugin;
+  plugin: ObsidianWebhooksPlugin;
   auth: Auth;
   authObserver: Unsubscribe;
 
-  constructor(app: App, plugin: MyPlugin) {
+  constructor(app: App, plugin: ObsidianWebhooksPlugin) {
     super(app, plugin);
     this.plugin = plugin;
     this.auth = getAuth(this.plugin.firebase);

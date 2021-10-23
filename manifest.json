@@ -1,0 +1,10 @@
+{
+	"id": "obsidian-webhook-plugin",
+	"name": "Webhook Plugin",
+	"version": "0.0.2",
+	"minAppVersion": "0.9.12",
+	"description": "Plugin that connects your notes to the internet of things through webhooks!",
+	"author": "Stephen Solka",
+	"authorUrl": "https://obsidian-buffer.web.app",
+	"isDesktopOnly": false
+}
