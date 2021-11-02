@@ -7,7 +7,14 @@ import {
   Unsubscribe,
 } from "firebase/auth";
 import { FirebaseApp, initializeApp } from "firebase/app";
-import { DataSnapshot, getDatabase, onValue, ref } from "firebase/database";
+import {
+  DataSnapshot,
+  getDatabase,
+  goOffline,
+  goOnline,
+  onValue,
+  ref,
+} from "firebase/database";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
 interface MyPluginSettings {
@@ -53,8 +60,13 @@ export default class ObsidianWebhooksPlugin extends Plugin {
       if (user) {
         const db = getDatabase(this.firebase);
         const buffer = ref(db, `buffer/${user.uid}`);
-        this.valUnsubscribe = onValue(buffer, (data) => {
-          this.onBufferChange(data);
+        this.valUnsubscribe = onValue(buffer, async (data) => {
+          try {
+            await goOffline(db);
+            await this.onBufferChange(data);
+          } finally {
+            await goOnline(db);
+          }
         });
       }
     });
@@ -66,7 +78,6 @@ export default class ObsidianWebhooksPlugin extends Plugin {
     if (!data.hasChildren()) {
       return;
     }
-    this.valUnsubscribe();
 
     try {
       let last: unknown = undefined;
@@ -85,11 +96,6 @@ export default class ObsidianWebhooksPlugin extends Plugin {
       new Notification("error processing webhook events, " + err.toString());
       throw err;
     } finally {
-      setTimeout(() => {
-        this.valUnsubscribe = onValue(data.ref, () => {
-          this.onBufferChange(data);
-        });
-      }, 5000);
     }
   }
 
