@@ -1,4 +1,5 @@
-import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
+/* eslint-disable no-console */
+import { App, Notice, Plugin, PluginSettingTab, Setting } from "obsidian";
 import {
   Auth,
   getAuth,
@@ -80,9 +81,9 @@ export default class ObsidianWebhooksPlugin extends Plugin {
       await this.wipe(last);
       promiseChain.catch((err) => {});
 
-      new Notification("notes updated by webhooks");
+      new Notice("notes updated by webhooks");
     } catch (err) {
-      new Notification("error processing webhook events, " + err.toString());
+      new Notice("error processing webhook events, " + err.toString());
       throw err;
     } finally {
     }
@@ -97,13 +98,21 @@ export default class ObsidianWebhooksPlugin extends Plugin {
   async applyEvent({ data, path }: { data: string; path: string }) {
     const fs = this.app.vault.adapter;
     let dirPath = path.replace(/\/*$/, "").replace(/^(.+)\/[^\/]*?$/, "$1");
-    const exists = await fs.exists(dirPath);
-    if (!exists) {
-      await fs.mkdir(dirPath);
+    if (dirPath !== path) {
+      // == means its in the root
+      const exists = await fs.stat(dirPath);
+      if (!exists) {
+        await fs.mkdir(dirPath);
+      }
     }
     let contentToSave = data;
-    if (await fs.exists(path)) {
-      // if the file already exists we need to append content to existing one
+    const pathStat = await fs.stat(path);
+    console.log("webhook updating path", path, pathStat);
+    if (pathStat?.type === "folder") {
+      throw new Error(
+        `path name exists as a folder. please delete folder: ${path}`
+      );
+    } else if (pathStat?.type == "file") {
       const existingContent = await fs.read(path);
       contentToSave = existingContent + contentToSave;
     }
@@ -146,6 +155,10 @@ class WebhookSettingTab extends PluginSettingTab {
   }
 
   display(): void {
+    if (!this) {
+      return;
+    }
+
     let { containerEl } = this;
 
     containerEl.empty();
