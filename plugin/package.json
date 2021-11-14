@@ -4,13 +4,13 @@
   "description": "This plugin connects your notes to the internet of things via webhooks",
   "main": "main.js",
   "scripts": {
-    "dev": "rollup --config rollup.config.js -w",
-    "build": "rollup --config rollup.config.js --environment BUILD:production"
+    "build": "vite build"
   },
   "keywords": [],
   "author": "",
   "dependencies": {
-    "firebase": "^9.1.2"
+    "firebase": "^9.1.2",
+    "shared": "^0.0.1"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^18.0.0",
@@ -21,6 +21,7 @@
     "dotenv": "^10.0.0",
     "obsidian": "^0.12.0",
     "rollup": "^2.32.1",
-    "tslib": "^2.2.0"
+    "tslib": "^2.2.0",
+    "vite": "^2.6.4"
   }
 }

@@ -16,6 +16,7 @@ import {
   ref,
 } from "firebase/database";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import app from "shared/firebase";
 
 interface MyPluginSettings {
   token: string;
@@ -30,18 +31,6 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
   triggerOnLoad: true,
 };
 
-// No one panic! https://stackoverflow.com/questions/37482366/is-it-safe-to-expose-firebase-apikey-to-the-public
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: "obsidian-buffer.firebaseapp.com",
-  databaseURL: "https://obsidian-buffer-default-rtdb.firebaseio.com",
-  projectId: "obsidian-buffer",
-  storageBucket: "obsidian-buffer.appspot.com",
-  messagingSenderId: "386398705772",
-  appId: "1:386398705772:web:4ebb36001ad006dd632049",
-  measurementId: "G-885V9M0N0C",
-};
-
 export default class ObsidianWebhooksPlugin extends Plugin {
   settings: MyPluginSettings;
   firebase: FirebaseApp;
@@ -52,7 +41,7 @@ export default class ObsidianWebhooksPlugin extends Plugin {
   async onload() {
     console.log("loading plugin");
     await this.loadSettings();
-    this.firebase = initializeApp(firebaseConfig);
+    this.firebase = app;
     this.authUnsubscribe = getAuth(this.firebase).onAuthStateChanged((user) => {
       if (this.valUnsubscribe) {
         this.valUnsubscribe();
@@ -145,8 +134,8 @@ class WebhookSettingTab extends PluginSettingTab {
   auth: Auth;
   authObserver: Unsubscribe;
 
-  constructor(app: App, plugin: ObsidianWebhooksPlugin) {
-    super(app, plugin);
+  constructor(oApp: App, plugin: ObsidianWebhooksPlugin) {
+    super(oApp, plugin);
     this.plugin = plugin;
     this.auth = getAuth(this.plugin.firebase);
     this.authObserver = this.auth.onAuthStateChanged(this.display);

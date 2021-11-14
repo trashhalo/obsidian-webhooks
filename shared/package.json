@@ -1,0 +1,10 @@
+{
+  "name": "shared",
+  "version": "0.0.1",
+  "devDependencies": {
+    "vite": "^2.6.4"
+  },
+  "peerDependencies": {
+    "firebase": "^9.1.3"
+  }
+}

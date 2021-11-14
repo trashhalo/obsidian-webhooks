@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import { FirebaseOptions, initializeApp } from "firebase/app";
 
 const firebaseConfig: FirebaseOptions = {
