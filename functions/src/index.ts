@@ -19,9 +19,25 @@ webhookApp.post("/:key", async (req: any, res: any) => {
     today.getDate() + 7
   );
 
+  let path: string;
+  const qPath: unknown = req.query.path;
+  if (typeof qPath === "string") {
+    path = qPath;
+  } else if (Array.isArray(qPath)) {
+    path = qPath[0];
+  } else {
+    return res
+      .status(422)
+      .send(
+        `path not a valid format. expected string recieved ${JSON.stringify(
+          qPath
+        )}`
+      );
+  }
+
   const buffer = {
     id: crypto.randomBytes(16).toString("hex"),
-    path: req.query.path,
+    path,
     exp,
     data: req.body,
   };

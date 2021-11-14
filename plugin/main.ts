@@ -95,8 +95,21 @@ export default class ObsidianWebhooksPlugin extends Plugin {
     await wipe(value);
   }
 
-  async applyEvent({ data, path }: { data: string; path: string }) {
+  async applyEvent({
+    data,
+    path: pathOrArr,
+  }: {
+    data: string;
+    path: string | Array<string>;
+  }) {
     const fs = this.app.vault.adapter;
+    let path: string;
+    if (typeof pathOrArr === "string") {
+      path = pathOrArr;
+    } else {
+      path = Object.values(pathOrArr).first();
+    }
+
     let dirPath = path.replace(/\/*$/, "").replace(/^(.+)\/[^\/]*?$/, "$1");
     if (dirPath !== path) {
       // == means its in the root
