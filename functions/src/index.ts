@@ -39,7 +39,7 @@ webhookApp.post("/:key", async (req: any, res: any) => {
     id: crypto.randomBytes(16).toString("hex"),
     path,
     exp,
-    data: req.body,
+    data: req.rawBody.toString(),
   };
   await admin.database().ref(`/buffer/${user}`).push(buffer);
   res.send("ok");
