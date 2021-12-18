@@ -35,6 +35,7 @@ const Login = () => {
 };
 const functions = getFunctions(app);
 const generateObsidianToken = httpsCallable(functions, "generateObsidianToken");
+const wipe = httpsCallable(functions, "wipe");
 
 const Authed = () => {
   const [store, { setCurrentUser, setObsidianToken, setLoading }] =
@@ -60,6 +61,16 @@ const Authed = () => {
     }
   };
 
+  const handleClearClick = async() => {
+    try {
+      setLoading(true);
+      // clear everything
+      await wipe({id: -1});
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <>
       <section className="section">
@@ -75,6 +86,14 @@ const Authed = () => {
                 Generate Obsidian Signin Token
               </button>
             )}
+            <button
+              className="button is-light"
+              onClick={() => handleClearClick()}
+              disabled={store.loading}
+              title="Click if plugin is erroring"
+            >
+              Clear Buffer ⚠️
+            </button>
             <button
               className="button is-light"
               onClick={() => handleLogoutClick(getAuth(store.app))}
