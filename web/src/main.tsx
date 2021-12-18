@@ -1,4 +1,4 @@
-import "bulma/css/bulma.css";
+import "./index.css";
 import App from "./App";
 import { render } from "solid-js/web";
 
