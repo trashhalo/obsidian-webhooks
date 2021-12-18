@@ -22,7 +22,7 @@ const Login = () => {
   };
   return (
     <form onSubmit={loginWithGoogle}>
-      <button type="submit" disabled={store.loading} className="bg-primary">
+      <button type="submit" disabled={store.loading} className="bg-primary-500">
         Sign in with Google
       </button>
     </form>
@@ -74,7 +74,7 @@ const Authed = () => {
             <button
               onClick={handleGenerateClick}
               disabled={store.loading}
-              className="md:w-auto md:mr-5 bg-primary border-green-600"
+              className="md:w-auto md:mr-5 bg-primary-500 border-green-600"
             >
               Generate Obsidian Signin Token
             </button>
