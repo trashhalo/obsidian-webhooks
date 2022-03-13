@@ -19,17 +19,24 @@ import {
 import { getFunctions, httpsCallable } from "firebase/functions";
 import app from "shared/firebase";
 
+enum NewLineType {
+  Windows = 1,
+  UnixMac = 2,
+}
+
 interface MyPluginSettings {
   token: string;
   frequency: string;
   triggerOnLoad: boolean;
   error?: string;
+  newLineType?: NewLineType;
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
   token: "",
   frequency: "0", // manual by default
   triggerOnLoad: true,
+  newLineType: undefined,
 };
 
 export default class ObsidianWebhooksPlugin extends Plugin {
@@ -119,6 +126,11 @@ export default class ObsidianWebhooksPlugin extends Plugin {
       }
     }
     let contentToSave = data;
+    if (this.settings.newLineType == NewLineType.UnixMac) {
+      contentToSave += "\n";
+    } else if (this.settings.newLineType == NewLineType.Windows) {
+      contentToSave += "\r\n";
+    }
     const pathStat = await fs.stat(path);
     console.log("webhook updating path", path, pathStat);
     if (pathStat?.type === "folder") {
@@ -209,7 +221,33 @@ class WebhookSettingTab extends PluginSettingTab {
               }
             });
         });
-
+      new Setting(containerEl)
+        .setName("New Line")
+        .setDesc("Add new lines between incoming notes")
+        .addDropdown((dropdown) => {
+          dropdown.addOption("none", "No new lines");
+          dropdown.addOption("windows", "Windows style newlines");
+          dropdown.addOption("unixMac", "Linux, Unix or Mac style new lines");
+          const { newLineType } = this.plugin.settings;
+          if (newLineType === undefined) {
+            dropdown.setValue("none");
+          } else if (newLineType == NewLineType.Windows) {
+            dropdown.setValue("windows");
+          } else if (newLineType == NewLineType.UnixMac) {
+            dropdown.setValue("unixMac");
+          }
+          dropdown.onChange(async (value) => {
+            if (value == "none") {
+              this.plugin.settings.newLineType = undefined;
+            } else if (value == "windows") {
+              this.plugin.settings.newLineType = NewLineType.Windows;
+            } else if (value == "unixMac") {
+              this.plugin.settings.newLineType = NewLineType.UnixMac;
+            }
+            await this.plugin.saveSettings();
+            this.display();
+          });
+        });
       return;
     }
 

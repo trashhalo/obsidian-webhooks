@@ -833,11 +833,6 @@
   resolved "https://registry.yarnpkg.com/@panva/asn1.js/-/asn1.js-1.0.0.tgz#dd55ae7b8129e02049f009408b97c61ccf9032f6"
   integrity sha512-UdkG3mLEqXgnlKsWanWcgb6dOjUzJ+XC5f+aWw30qrtjxeNUSfKX1cd5FBzOaXQumoe9nIqeZUvrRJS03HCCtw==
 
-"@picocss/pico@^1.4.1":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@picocss/pico/-/pico-1.4.1.tgz#cac2f8fb4cff70e371c9f0162a7929fd7e627b6e"
-  integrity sha512-YVIeo/021QhPk0/BuJBbNwrM1/v7R1PaJ9I4XhIrA8S5bswmR3SET23SbXHohCQ7ozHyAZnjpmDW7ZKbZIuApw==
-
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@protobufjs/aspromise/-/aspromise-1.1.2.tgz#9b8b0cc663d669a7d8f6f5d0893a14d348f30fbf"
