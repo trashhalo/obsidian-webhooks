@@ -1,6 +1,6 @@
 {
   "name": "obsidian-webhooks",
-  "version": "0.0.3",
+  "version": "0.0.6",
   "repository": "git@github.com:trashhalo/obsidian-webhooks.git",
   "author": "Stephen Solka <stephen@solka.dev>",
   "license": "MIT",
