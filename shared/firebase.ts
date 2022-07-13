@@ -5,7 +5,7 @@ import { FirebaseOptions, initializeApp } from "firebase/app";
 const firebaseConfig: FirebaseOptions = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY as string,
   authDomain: "obsidian-buffer.firebaseapp.com",
-  databaseURL: "https://obsidian-buffer-default-rtdb.firebaseio.com",
+  databaseURL: "wss://obsidian-buffer-default-rtdb.firebaseio.com",
   projectId: "obsidian-buffer",
   storageBucket: "obsidian-buffer.appspot.com",
   messagingSenderId: "386398705772",

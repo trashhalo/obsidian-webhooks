@@ -9,7 +9,7 @@
   "keywords": [],
   "author": "",
   "dependencies": {
-    "firebase": "^9.1.2",
+    "firebase": "^9.6.11",
     "shared": "^0.0.1"
   },
   "devDependencies": {

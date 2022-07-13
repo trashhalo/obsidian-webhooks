@@ -7,7 +7,7 @@ import {
   signOut,
   Unsubscribe,
 } from "firebase/auth";
-import { FirebaseApp, initializeApp } from "firebase/app";
+import { FirebaseApp } from "firebase/app";
 import {
   DataSnapshot,
   getDatabase,
